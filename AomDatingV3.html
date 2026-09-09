@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>หมู × ออม | Dating Game</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#120c18;color:#fff;min-height:100vh}button,input{font:inherit}.wrap{max-width:760px;margin:auto;padding:18px}.top{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.pill{background:#24172d;border:1px solid #493052;border-radius:999px;padding:8px 12px}.game{background:#1b1222;border:1px solid #3c2945;border-radius:24px;padding:24px;min-height:560px;box-shadow:0 20px 60px #0008}.center{text-align:center}.emoji{font-size:76px}.small{opacity:.75}.bar{height:12px;background:#302139;border-radius:99px;overflow:hidden;margin:8px 0 18px}.fill{height:100%;width:0;background:#ff4f91;transition:.3s}.choices{display:grid;gap:10px;margin-top:20px}.btn{border:0;border-radius:16px;padding:14px 16px;background:#f04d8b;color:white;font-weight:700;cursor:pointer}.btn.alt{background:#30203a}.btn:active{transform:scale(.98)}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.big{font-size:22px}.msg{background:#291b31;border-radius:16px;padding:14px;margin-top:14px;min-height:54px}.hide{display:none}.input{width:100%;padding:14px;border-radius:14px;border:1px solid #62456c;background:#100b15;color:white;text-align:center;font-size:24px}.footer{text-align:center;opacity:.55;margin:14px}.heart{position:fixed;pointer-events:none;animation:up 1.5s forwards}@keyframes up{to{transform:translateY(-180px) scale(1.6);opacity:0}}@media(max-width:520px){.game{padding:18px;min-height:580px}.grid{grid-template-columns:1fr}.emoji{font-size:62px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><div class="pill">❤️ <span id="love">0</span></div><div class="pill">😂 <span id="chaos">0</span></div><div class="pill">😤 <span id="sulk">0</span></div><div class="pill">🪙 <span id="coins">0</span></div><div class="pill">ด่าน <span id="stage">1</span>/40</div></div>
+<div class="bar"><div class="fill" id="bar"></div></div>
+<main class="game" id="game"></main>
+<div class="footer">🐷 หมู × 💗 ออม — เล่นให้จบ แล้วค่อยรู้ว่าทำไมหมูทำเกมนี้</div>
+</div>
+<script>
+'use strict';
+const S={love:0,chaos:0,sulk:0,coins:0,stage:0};
+const $=id=>document.getElementById(id);
+function clamp(n){return Math.max(0,Math.min(100,n))}
+function stat(a={}){for(const k of Object.keys(a)){S[k]=(S[k]||0)+a[k]}S.love=clamp(S.love);S.chaos=clamp(S.chaos);S.sulk=clamp(S.sulk);renderStats()}
+function renderStats(){$('love').textContent=S.love;$('chaos').textContent=S.chaos;$('sulk').textContent=S.sulk;$('coins').textContent=S.coins;$('stage').textContent=Math.min(S.stage+1,40);$('bar').style.width=(S.stage/40*100)+'%'}
+function hearts(){for(let i=0;i<8;i++){const e=document.createElement('div');e.className='heart';e.textContent='💗';e.style.left=(20+Math.random()*60)+'vw';e.style.top=(60+Math.random()*20)+'vh';document.body.appendChild(e);setTimeout(()=>e.remove(),1600)}}
+function box(title,emoji,text,buttons){$('game').innerHTML='<div class="center"><div class="emoji">'+emoji+'</div><h1>'+title+'</h1><p>'+text+'</p><div class="choices">'+buttons.map((b,i)=>'<button class="btn '+(i?'alt':'')+'" data-i="'+i+'">'+b[0]+'</button>').join('')+'</div></div>';document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>buttons[+b.dataset.i][1]())}
+function next(){S.stage++;if(S.stage>=40)return ending();renderStats();scene(S.stage)}
+function ending(){S.stage=40;renderStats();hearts();$('game').innerHTML='<div class="center"><div class="emoji">💗🐷💗</div><h1>MISSION COMPLETE</h1><h2>หมู × ออม</h2><p>❤️ LOVE: '+S.love+'</p><p>😂 CHAOS: '+S.chaos+'</p><p>😤 งอน: '+S.sulk+'</p><h2>สถานะ: แฟนหมูอย่างเป็นทางการ 💗</h2><div class="msg">จริง ๆ หมูทำเกมนี้มาแกล้งออมแหละ 😂<br><br>แต่มีเรื่องนึงที่ไม่ได้แกล้ง...<br><b>หมูรักออมจริง ๆ ❤️</b></div><button class="btn" onclick="location.reload()">เล่นใหม่อีกครั้ง 🔄</button></div>'}
+function scene(n){
+const generic=[
+['ตรวจสอบผู้เล่น','🚨','ระบบกำลังตรวจว่าเธอคือ “ออมตัวจริง” หรือไม่','ฉันคือออมตัวจริง','ฉันเป็นผู้ต้องสงสัย'],
+['ปุ่มกวนประสาท','😂','มีปุ่มหนึ่งที่เขียนว่า “อย่ากด” แน่นอนว่ามันต้องกด','กดสิ รออะไร 😂','ไม่กด เดี๋ยวหมูหลอก'],
+['ทายใจหมู','🧠','หมูหิวมาก คิดว่าหมูอยากกินอะไรที่สุด','ของอร่อย 🍜','ออม 😳'],
+['เลือกของกิน','🍜','ถ้าหมูพาไปกินข้าว ออมจะเลือกอะไร','ของโปรดของออม','ให้หมูเลือกเลย'],
+['วงล้อเดท','🎰','หมุนวงล้อเพื่อรับคะแนน','หมุน!','เสี่ยงดวงกับหมู'],
+['เก็บหัวใจ','❤️','เก็บหัวใจให้ได้ 5 ดวงในเวลาจำกัด','เก็บเลย','ยอมแพ้แล้วให้หมูเก็บ'],
+['หนีหมู','🏃','หมูกำลังไล่ตาม! กดหนี 5 ครั้ง','หนีสุดชีวิต','ยอมให้จับ 😂'],
+['หัวใจที่ซ่อน','🕵️','เลือกกล่องที่คิดว่ามีหัวใจ','กล่องซ้าย','กล่องขวา','กล่องลับ'],
+['รหัสลับ','🔐','รหัสมี 3 หลัก ลองเดารหัสของหมู','เปิดรหัส'],
+['ตอบแชต','📱','หมูส่งว่า “คิดถึงนะ” ออมจะตอบว่าอะไร','คิดถึงเหมือนกัน ❤️','ไม่ตอบ แกล้งหมู'],
+['ออมงอน','😤','หมูพูดว่า “เดี๋ยวค่อยคุย” ออมจะทำยังไง','งอนนิดนึง','ไม่งอนหรอก'],
+['จับโกหก','🤥','หมูบอกว่า “วันนี้ไม่คิดถึงออมเลย” เชื่อไหม','ไม่เชื่อ!','เชื่อก็ได้'],
+['ยิงหัวใจ','🎯','เลือกเป้าหมายหัวใจให้ถูก','💗','💔','💗💗'],
+['จิ๊กซอว์','🧩','ชิ้นสุดท้ายควรเป็นอะไร','หัวใจ','หมู','ออม'],
+['งบเดท','💸','มี 100 บาท จะใช้กับอะไร','ของกิน','ขนมให้ออม','เก็บไว้ให้หมู'],
+['สถานที่เดท','🥰','คืนนี้เลือกที่ไหนดี','เดินเล่น','ร้านอาหาร','อยู่ด้วยกันที่บ้าน'],
+['ของขวัญ','🎁','หมูอยากได้ของขวัญอะไร','กอด','ของกิน','ไม่ต้องมี แค่ออมก็พอ'],
+['จับเวลา','⏱️','มีเวลา 3 วินาที ตัดสินใจ!','เลือกออม','เลือกหมู','เลือกทั้งคู่'],
+['ให้อาหารหมู','🐷','หมูหิวแล้ว ให้อะไรดี','ข้าว','ขนม','น้ำเปล่า 😂'],
+['เติมหลอดรัก','💗','เติมพลังให้หลอดความรัก','กอดหมู','บอกรักหมู','หอมแก้ม'],
+['ทายคำตอบหมู','😂','ถ้าออมถาม “รักไหม” หมูจะตอบว่า...','รักครับ ❤️','ไม่รักครับ 😂'],
+['วัดความเขิน','🫣','คำว่า “แฟนหมู” ทำให้ออมเขินกี่คะแนน','100','50','0'],
+['ฉุกเฉิน','🚨','ระบบแจ้งเตือน: ออมกำลังจะงอน!','รีบง้อ','หนี','ทำเป็นไม่รู้'],
+['บอสออมงอน','👹','FINAL BOSS! ต้องง้อให้สำเร็จ','กอด','ง้อด้วยของกิน','บอกว่ารัก']
+];
+if(n<=24){let x=generic[n-1];let bs=x.slice(3).map((t,i)=>[t,()=>{stat({love:[3,5,4][i%3],chaos:i===1?2:0,sulk:i===1?1:0,coins:i===0?2:1});next()}]);box(x[0],x[1],x[2],bs);return}
+const extras=[
+['คำถามเร็ว','⚡','หมูมีข้อดีข้อไหนที่ออมชอบที่สุด','กวนประสาท','อยู่ข้างออม','กินเก่ง'],
+['หน่วยความจำ','🧠','จำให้ได้: หมูชอบเรียกออมว่าอะไร','ออม','ที่รัก','คนเก่ง'],
+['เลือกเพลง','🎵','เพลงเดทควรเป็นแบบไหน','หวาน','มันส์','อะไรก็ได้ถ้ามีออม'],
+['เกมจริงหรือหลอก','🎭','หมูบอกว่าจะไม่แกล้งออมอีก','จริง','ไม่เชื่อ 😂'],
+['ภารกิจลับ','🕶️','กดรับภารกิจลับเพื่อปลดล็อกโบนัส','รับ','ไม่รับ'],
+['คะแนนความน่ารัก','✨','ออมคิดว่าตัวเองน่ารักกี่คะแนน','100/10','999/10'],
+['ดวลหัวเราะ','🤣','เลือกท่าโจมตีหมู','555','ฮ่าๆ','ยิ้ม'],
+['ด่านปริศนา','❓','อะไรเอ่ย หมูทำให้หัวใจเต้นแรง','หมู','ออม','ทั้งคู่'],
+['ทางแยก','🛣️','ซ้ายคือความกวน ขวาคือความหวาน','ซ้าย 😂','ขวา ❤️'],
+['คำสัญญา','🤝','เลือกคำสัญญาหนึ่งข้อ','จะดูแลกัน','จะง้อเสมอ','จะกวนเหมือนเดิม'],
+['ของกินในฝัน','🍰','ถ้าได้กินตอนนี้จะเลือกอะไร','ของหวาน','ของคาว','กินกับหมู'],
+['รูปหัวใจ','📸','ถ่ายรูปในจินตนาการ ท่าไหนดี','ชูสองนิ้ว','หัวใจมือ','กอดกัน'],
+['คะแนนความงอน','😤','ถ้าหมูตอบช้า 2 ชั่วโมง ออมจะงอนแค่ไหน','นิดเดียว','มาก','ไม่งอน แต่จำไว้ก่อน'],
+['หมูแพ้แล้ว','🏳️','หมูยอมแพ้ต่อความน่ารักของออม','รับชัยชนะ','สงสารหมู'],
+['โบนัสหัวใจ','💎','เก็บเพชรหัวใจเพื่อรับโบนัส','เก็บ','แบ่งให้หมู'],
+['ภารกิจคู่','👫','ต้องเลือกพร้อมกัน หมูหรือออม','ออม','หมู','พร้อมกัน'],
+['คำถามสุดท้ายก่อนบอส','💌','ถ้าหมูอยู่ตรงหน้า ออมจะทำอะไร','กอด','ยิ้ม','บอกว่ารัก'],
+['เซอร์ไพรส์','🎁','กล่องนี้มีอะไรที่หมูอยากให้ออม','ความรัก','ขนม','กอด'],
+['ห้องลับ','🚪','ประตูนี้เปิดได้ด้วยคำว่า...','รักหมู','คิดถึงหมู'],
+['เวลาของเรา','⏰','เลือกเวลาที่อยากอยู่ด้วยกัน','ตอนเช้า','ตอนเย็น','ทุกเวลา'],
+['หัวใจเต็ม','❤️','หลอดหัวใจใกล้เต็มแล้ว เติมอีกนิด','กอด','บอกรัก','ทั้งสองอย่าง'],
+['หมูถามจริง','🐷','ถามจริงนะ... ออมยังเลือกหมูอยู่ไหม','เลือกอยู่แล้ว','แน่นอน','ถามอะไรเนี่ย 😂'],
+['เก็บดาว','⭐','เก็บดาวแห่งความทรงจำ','⭐','🌟','💫'],
+['ประตูสุดท้าย','🚪','เปิดประตูไปหาฉากจบ','เปิดเลย','พร้อมแล้ว'],
+];
+const x=extras[n-25];let bs=x.slice(3).map((t,i)=>[t,()=>{stat({love:4+(i===2?2:0),chaos:i%3===0?1:0,coins:2});next()}]);box(x[0],x[1],x[2],bs)
+}
+renderStats();scene(0+1);
+</script>
+</body>
+</html>
